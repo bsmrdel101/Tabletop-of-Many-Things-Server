@@ -8,19 +8,10 @@ import pool from "../modules/pool";
 
 const router = express.Router();
 /**
- * @base_path /api/account
+ * @base_path /api/user
 */
 
 router.get("/", ensureAuthenticated, accountInfo);
-
-router.get("/session-check", ensureAuthenticated, (req: Request, res: Response) => {
-  try {
-    res.sendStatus(200);
-  } catch(error) {
-    console.log(error);
-    res.status(500).json({ message: error });
-  }
-});
 
 router.post("/authenticate", (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate("local", (err: string, user: any, info: any) => {
@@ -46,9 +37,11 @@ router.post('/register', (req: Request, res: Response, next: NextFunction) => {
     INSERT INTO "users" (username, password)
     VALUES ($1, $2) RETURNING id
   `);
-  
-  pool
-    .query(queryText, [username, password])
+  const sqlValues = [
+    username,
+    password,
+  ];
+  pool.query(queryText, sqlValues)
     .then(() => res.sendStatus(201))
     .catch((err) => {
       console.log('User registration failed: ', err);

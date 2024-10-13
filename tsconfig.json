@@ -9,7 +9,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "outDir": "dist",
-    "strictNullChecks": false
+    "strictNullChecks": false,
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

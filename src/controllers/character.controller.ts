@@ -5,14 +5,19 @@ import pool from "../modules/pool";
 
 const router = express.Router();
 /**
- * @base_path /api/alerts
+ * @base_path /api/character
 */
 
-router.get("/", ensureAuthenticated, (req: Request, res: Response) => {
+router.get("/", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    SELECT * FROM "alerts";
+    SELECT * FROM "characters"
+    WHERE "user_id" = $1
+    ORDER BY "id";
   `);
-  pool.query(sqlText)
+  const sqlValues = [
+    req.user.id,
+  ];
+  pool.query(sqlText, sqlValues)
     .then((dbres) => res.send(dbres.rows))
     .catch((dberror) => {
       console.log('Oops you did a goof: ', dberror);
@@ -21,17 +26,31 @@ router.get("/", ensureAuthenticated, (req: Request, res: Response) => {
   );
 });
 
-router.post("/", ensureAuthenticated, (req: Request, res: Response) => {
+router.get("/:id", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    INSERT INTO "alerts" ("date", "addedBy", "partNum", "type", "note")
-    VALUES ($1, $2, $3, $4, $5);
+    SELECT * FROM "characters"
+    WHERE "id" = $1
+    ORDER BY "id";
   `);
   const sqlValues = [
-    req.body.date,
-    req.body.addedBy,
-    req.body.partNum,
-    req.body.type,
-    req.body.note
+    req.params.id,
+  ];
+  pool.query(sqlText, sqlValues)
+    .then((dbres) => res.send(dbres.rows[0]))
+    .catch((dberror) => {
+      console.log('Oops you did a goof: ', dberror);
+      res.sendStatus(500);
+    }
+  );
+});
+
+router.post("/", ensureAuthenticated, (req: any, res: Response) => {
+  const sqlText =`
+    INSERT INTO "characters" ("user_id")
+    VALUES ($1);
+  `;
+  const sqlValues = [
+    req.user.id
   ];
   pool.query(sqlText, sqlValues)
     .then(() => res.sendStatus(201))
@@ -42,19 +61,17 @@ router.post("/", ensureAuthenticated, (req: Request, res: Response) => {
   );
 });
 
-router.put("/", ensureAuthenticated, (req: Request, res: Response) => {
+router.patch("/health", ensureAuthenticated, (req: Request, res: Response) => {
   const sqlText = (`
-    UPDATE "alerts"
-    SET "date" = $2, "addedBy" = $3, "partNum" = $4, "type" = $5, "note" = $6
+    UPDATE "characters"
+    SET "maxHp" = $2, "currentHp" = $3, "tempHp" = $4
     WHERE "id" = $1;
   `);
   const sqlValues = [
     req.body.id,
-    req.body.date,
-    req.body.addedBy,
-    req.body.partNum,
-    req.body.type,
-    req.body.note
+    req.body.maxHp,
+    req.body.currentHp,
+    req.body.tempHp,
   ];
   pool.query(sqlText, sqlValues)
     .then(() => res.sendStatus(201))
@@ -67,7 +84,7 @@ router.put("/", ensureAuthenticated, (req: Request, res: Response) => {
 
 router.delete("/:id", ensureAuthenticated, (req: Request, res: Response) => {
   const sqlText = (`
-    DELETE FROM "alerts"
+    DELETE FROM "characters"
     WHERE "id" = $1;
   `);
   const sqlValues = [

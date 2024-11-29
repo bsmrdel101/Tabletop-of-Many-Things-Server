@@ -5,41 +5,45 @@ CREATE TABLE "users" (
     "newUser" BOOLEAN DEFAULT true
 );
 
-CREATE TABLE "game_list" (
+CREATE TABLE "5e_game_list" (
     "id" SERIAL PRIMARY KEY,
     "userId" INTEGER REFERENCES "users",
-    "mapId" INTEGER DEFAULT 1 REFERENCES "maps",
+    "mapId" INTEGER DEFAULT 1,
     "dm" INTEGER REFERENCES "users",
     "name" TEXT NOT NULL,
-    "code" TEXT NOT NULL
+    "code" TEXT NOT NULL,
+    "ruleset" TEXT NOT NULL
 );
 
-CREATE TABLE "maps" (
+CREATE TABLE "5e_maps" (
     "id" SERIAL PRIMARY KEY,
-    "gameId" INTEGER REFERENCES "game_list",
+    "gameId" INTEGER,
     "filepath" TEXT DEFAULT 'maps',
-    "name" TEXT,    
+    "name" TEXT,
     "image" TEXT,
     "cellSize" INTEGER DEFAULT 50,
     "gridColor" TEXT DEFAULT '#000000',
     "gridOpacity" INTEGER DEFAULT 100,
     "offsetX" DECIMAL DEFAULT 0,
     "offsetY" DECIMAL DEFAULT 0,
-    "boardState" TEXT DEFAULT '[]'
+    "boardState" TEXT DEFAULT '[]',
+    "los" TEXT DEFAULT '[]',
+    "lighting" TEXT DEFAULT '[]',
+    "drawing" TEXT DEFAULT '[]'
 );
 
 CREATE TABLE "assets" (
     "id" SERIAL PRIMARY KEY,
     "userId" INTEGER REFERENCES "users",
-    "gameId" INTEGER REFERENCES "game_list",
+    "gameId" INTEGER REFERENCES "5e_game_list",
     "filepath" TEXT DEFAULT 'assets',
     "image" TEXT
 );
 
 CREATE TABLE "map_tokens" (
     "id" SERIAL PRIMARY KEY,
-    "gameId" INTEGER REFERENCES "game_list",
-    "mapId" INTEGER REFERENCES "maps",
+    "gameId" INTEGER REFERENCES "5e_game_list",
+    "mapId" INTEGER REFERENCES "5e_maps",
     "assetId" INTEGER REFERENCES "assets",
     "x" INTEGER DEFAULT 0,
     "y" INTEGER DEFAULT 0,
@@ -47,15 +51,15 @@ CREATE TABLE "map_tokens" (
     "creature" TEXT
 );
 
-CREATE TABLE "game_history" (
+CREATE TABLE "5e_game_history" (
     "id" SERIAL PRIMARY KEY,
     "userId" INTEGER REFERENCES "users",
-    "gameId" INTEGER REFERENCES "game_list"
+    "gameId" INTEGER REFERENCES "5e_game_list"
 );
 
 CREATE TABLE "spells" (
     "id" SERIAL PRIMARY KEY,
-    "gameId" INTEGER REFERENCES "game_list",
+    "gameId" INTEGER REFERENCES "5e_game_list",
     "name" TEXT,
     "desc" TEXT,
     "level" INTEGER,
@@ -110,7 +114,7 @@ CREATE TABLE "characters" (
 CREATE TABLE "creatures" (
     "id" SERIAL PRIMARY KEY,
     "userId" INTEGER REFERENCES "users" ON DELETE CASCADE,
-    "gameId" INTEGER REFERENCES "game_list" ON DELETE CASCADE,
+    "gameId" INTEGER REFERENCES "5e_game_list" ON DELETE CASCADE,
     "token" INTEGER REFERENCES "assets" ON DELETE CASCADE,
     "name" VARCHAR (80),
     "size" VARCHAR (80),
@@ -167,9 +171,9 @@ VALUES
     ('test', '$2a$10$3rvmJEyHfGUQhLpuhKBmneeK76Zvw2d7wO0KYob8YKAF.DirAKcga')
 ;
 
-INSERT INTO "game_list" ("userId", "name", "code", "dm")
+INSERT INTO "5e_game_list" ("userId", "name", "code", "dm", "ruleset")
 VALUES
-    (1, 'Dev Campaign', 'pA6ZO0', 1)
+    (1, 'Dev Campaign', 'pA6ZO0', 1, '5e')
 ;
 
 INSERT INTO "characters" ("userId", "name", "class", "race", "background", "alignment", "level", "ac", "max_health", "current_health", "temp_health", "prof_bonus", "initiative", "inspiration", "hit_dice", "str", "dex", "con", "int", "wis", "char", "image", "walk_speed", "swim_speed", "burrow_speed", "fly_speed", "climb_speed")
@@ -207,7 +211,7 @@ VALUES
     (1, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlW_xekRD291YBhLdPKYifDnF2HV74Csz0KQ&usqp=CAU')
 ;
 
-INSERT INTO "maps" ("gameId", "name", "image")
+INSERT INTO "5e_maps" ("gameId", "name", "image")
 VALUES
     (1, 'Default Map', '/images/maps/default-map.webp'),
     (1, 'Forest', 'https://i.etsystatic.com/18388031/r/il/8b7a49/2796267092/il_fullxfull.2796267092_aezx.jpg')

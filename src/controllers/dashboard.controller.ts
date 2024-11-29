@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.get("/", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    SELECT * FROM "game_list"
+    SELECT * FROM "5e_game_list"
     WHERE "userId" = $1
     ORDER BY "id";
   `);
@@ -28,7 +28,7 @@ router.get("/", ensureAuthenticated, (req: any, res: Response) => {
 
 router.get("/game/:id", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    SELECT * FROM "game_list"
+    SELECT * FROM "5e_game_list"
     WHERE "code" = $1;
   `);
   const sqlValues = [
@@ -45,10 +45,10 @@ router.get("/game/:id", ensureAuthenticated, (req: any, res: Response) => {
 
 router.get("/history", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    SELECT "game_list".* FROM "game_history"
-      LEFT JOIN "game_list" ON "game_history"."gameId" = "game_list"."id"
-    WHERE "game_history"."userId" = $1
-    ORDER BY "game_history"."id";
+    SELECT "5e_game_list".* FROM "5e_game_history"
+      LEFT JOIN "5e_game_list" ON "5e_game_history"."gameId" = "5e_game_list"."id"
+    WHERE "5e_game_history"."userId" = $1
+    ORDER BY "5e_game_history"."id";
   `);
   const sqlValues = [
     req.user.id,
@@ -64,14 +64,15 @@ router.get("/history", ensureAuthenticated, (req: any, res: Response) => {
 
 router.post("/", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    INSERT INTO "game_list" ("userId", "name", "code", "dm")
-    VALUES ($1, $2, $3, $4);
+    INSERT INTO "5e_game_list" ("userId", "name", "code", "dm", "ruleset")
+    VALUES ($1, $2, $3, $4, $5);
   `);
   const sqlValues = [
     req.user.id,
     req.body.name,
     makeID(),
-    req.user.id
+    req.user.id,
+    req.body.ruleset
   ];
   pool.query(sqlText, sqlValues)
     .then(() => res.sendStatus(201))
@@ -84,7 +85,7 @@ router.post("/", ensureAuthenticated, (req: any, res: Response) => {
 
 router.post("/history", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    INSERT INTO "game_history" ("userId", "gameId")
+    INSERT INTO "5e_game_history" ("userId", "gameId")
     VALUES ($1, $2);
   `);
   const sqlValues = [
@@ -102,7 +103,7 @@ router.post("/history", ensureAuthenticated, (req: any, res: Response) => {
 
 router.put("/:id", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    UPDATE "game_list"
+    UPDATE "5e_game_list"
     SET "mapId" = $1
     WHERE "id" = $2;
   `);
@@ -121,7 +122,7 @@ router.put("/:id", ensureAuthenticated, (req: any, res: Response) => {
 
 router.delete("/:id", ensureAuthenticated, (req: Request, res: Response) => {
   const sqlText = (`
-    DELETE FROM "game_list"
+    DELETE FROM "5e_game_list"
     WHERE "id" = $1;
   `);
   const sqlValues = [

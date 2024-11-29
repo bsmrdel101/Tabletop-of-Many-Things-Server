@@ -5,13 +5,13 @@ import pool from "../modules/pool";
 
 const router = express.Router();
 /**
- * @base_path /api/character
+ * @base_path /api/dashboard
 */
 
 router.get("/", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    SELECT * FROM "characters"
-    WHERE "user_id" = $1
+    SELECT * FROM "games_list"
+    WHERE "userId" = $1
     ORDER BY "id";
   `);
   const sqlValues = [
@@ -26,11 +26,10 @@ router.get("/", ensureAuthenticated, (req: any, res: Response) => {
   );
 });
 
-router.get("/:id", ensureAuthenticated, (req: any, res: Response) => {
+router.get("/game/:id", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    SELECT * FROM "characters"
-    WHERE "id" = $1
-    ORDER BY "id";
+    SELECT * FROM "games_list"
+    WHERE "code" = $1;
   `);
   const sqlValues = [
     req.params.id,
@@ -44,12 +43,33 @@ router.get("/:id", ensureAuthenticated, (req: any, res: Response) => {
   );
 });
 
-router.post("/", ensureAuthenticated, (req: any, res: Response) => {
+router.get("/history", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    INSERT INTO "characters" ("user_id")
-    VALUES ($1);
+    SELECT * FROM "game_history"
+    WHERE "userId" = $1
+    ORDER BY "id";
   `);
   const sqlValues = [
+    req.user.id,
+  ];
+  pool.query(sqlText, sqlValues)
+    .then((dbres) => res.send(dbres.rows))
+    .catch((dberror) => {
+      console.log('Oops you did a goof: ', dberror);
+      res.sendStatus(500);
+    }
+  );
+});
+
+router.post("/", ensureAuthenticated, (req: any, res: Response) => {
+  const sqlText = (`
+    INSERT INTO "games_list" ("userId", "name", "code", "dm")
+    VALUES ($1, $2, $3, $4);
+  `);
+  const sqlValues = [
+    req.user.id,
+    req.body.name,
+    makeID(),
     req.user.id
   ];
   pool.query(sqlText, sqlValues)
@@ -61,17 +81,34 @@ router.post("/", ensureAuthenticated, (req: any, res: Response) => {
   );
 });
 
-router.patch("/health", ensureAuthenticated, (req: Request, res: Response) => {
+router.post("/history", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    UPDATE "characters"
-    SET "maxHp" = $2, "currentHp" = $3, "tempHp" = $4
-    WHERE "id" = $1;
+    INSERT INTO "game_history" ("userId", "name", "code")
+    VALUES ($1, $2, $3);
+  `);
+  const sqlValues = [
+    req.user.id,
+    req.body.name,
+    req.body.code
+  ];
+  pool.query(sqlText, sqlValues)
+    .then(() => res.sendStatus(201))
+    .catch((dberror) => {
+      console.log('Oops you did a goof: ', dberror);
+      res.sendStatus(500);
+    }
+  );
+});
+
+router.put("/:id", ensureAuthenticated, (req: any, res: Response) => {
+  const sqlText = (`
+    UPDATE "games_list"
+    SET "mapId" = $1
+    WHERE "id" = $2;
   `);
   const sqlValues = [
     req.body.id,
-    req.body.maxHp,
-    req.body.currentHp,
-    req.body.tempHp,
+    req.params.id
   ];
   pool.query(sqlText, sqlValues)
     .then(() => res.sendStatus(200))
@@ -84,7 +121,7 @@ router.patch("/health", ensureAuthenticated, (req: Request, res: Response) => {
 
 router.delete("/:id", ensureAuthenticated, (req: Request, res: Response) => {
   const sqlText = (`
-    DELETE FROM "characters"
+    DELETE FROM "games_list"
     WHERE "id" = $1;
   `);
   const sqlValues = [
@@ -99,5 +136,14 @@ router.delete("/:id", ensureAuthenticated, (req: Request, res: Response) => {
   );
 });
 
+
+function makeID() {
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let text = '';
+  for (let i = 0; i < 6; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
+}
 
 export default router;

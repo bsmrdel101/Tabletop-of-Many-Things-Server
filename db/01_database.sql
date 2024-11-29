@@ -5,7 +5,7 @@ CREATE TABLE "users" (
     "newUser" BOOLEAN DEFAULT true
 );
 
-CREATE TABLE "games_list" (
+CREATE TABLE "game_list" (
     "id" SERIAL PRIMARY KEY,
     "userId" INTEGER REFERENCES "users",
     "mapId" INTEGER DEFAULT 1 REFERENCES "maps",
@@ -16,7 +16,7 @@ CREATE TABLE "games_list" (
 
 CREATE TABLE "maps" (
     "id" SERIAL PRIMARY KEY,
-    "gameId" INTEGER REFERENCES "games_list",
+    "gameId" INTEGER REFERENCES "game_list",
     "filepath" TEXT DEFAULT 'maps',
     "name" TEXT,    
     "image" TEXT,
@@ -31,14 +31,14 @@ CREATE TABLE "maps" (
 CREATE TABLE "assets" (
     "id" SERIAL PRIMARY KEY,
     "userId" INTEGER REFERENCES "users",
-    "gameId" INTEGER REFERENCES "games_list",
+    "gameId" INTEGER REFERENCES "game_list",
     "filepath" TEXT DEFAULT 'assets',
     "image" TEXT
 );
 
 CREATE TABLE "map_tokens" (
     "id" SERIAL PRIMARY KEY,
-    "gameId" INTEGER REFERENCES "games_list",
+    "gameId" INTEGER REFERENCES "game_list",
     "mapId" INTEGER REFERENCES "maps",
     "assetId" INTEGER REFERENCES "assets",
     "x" INTEGER DEFAULT 0,
@@ -50,15 +50,12 @@ CREATE TABLE "map_tokens" (
 CREATE TABLE "game_history" (
     "id" SERIAL PRIMARY KEY,
     "userId" INTEGER REFERENCES "users",
-    "mapId" INTEGER DEFAULT 1 REFERENCES "maps",
-    "dm" INTEGER REFERENCES "users",
-    "name" TEXT NOT NULL,
-    "code" TEXT NOT NULL
+    "gameId" INTEGER REFERENCES "game_list"
 );
 
 CREATE TABLE "spells" (
     "id" SERIAL PRIMARY KEY,
-    "gameId" INTEGER REFERENCES "games_list",
+    "gameId" INTEGER REFERENCES "game_list",
     "name" TEXT,
     "desc" TEXT,
     "level" INTEGER,
@@ -113,7 +110,7 @@ CREATE TABLE "characters" (
 CREATE TABLE "creatures" (
     "id" SERIAL PRIMARY KEY,
     "userId" INTEGER REFERENCES "users" ON DELETE CASCADE,
-    "gameId" INTEGER REFERENCES "games_list" ON DELETE CASCADE,
+    "gameId" INTEGER REFERENCES "game_list" ON DELETE CASCADE,
     "token" INTEGER REFERENCES "assets" ON DELETE CASCADE,
     "name" VARCHAR (80),
     "size" VARCHAR (80),
@@ -170,7 +167,7 @@ VALUES
     ('test', '$2a$10$3rvmJEyHfGUQhLpuhKBmneeK76Zvw2d7wO0KYob8YKAF.DirAKcga')
 ;
 
-INSERT INTO "games_list" ("userId", "name", "code", "dm")
+INSERT INTO "game_list" ("userId", "name", "code", "dm")
 VALUES
     (1, 'Dev Campaign', 'pA6ZO0', 1)
 ;

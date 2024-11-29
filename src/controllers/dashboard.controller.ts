@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.get("/", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    SELECT * FROM "games_list"
+    SELECT * FROM "game_list"
     WHERE "userId" = $1
     ORDER BY "id";
   `);
@@ -28,7 +28,7 @@ router.get("/", ensureAuthenticated, (req: any, res: Response) => {
 
 router.get("/game/:id", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    SELECT * FROM "games_list"
+    SELECT * FROM "game_list"
     WHERE "code" = $1;
   `);
   const sqlValues = [
@@ -45,9 +45,10 @@ router.get("/game/:id", ensureAuthenticated, (req: any, res: Response) => {
 
 router.get("/history", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    SELECT * FROM "game_history"
-    WHERE "userId" = $1
-    ORDER BY "id";
+    SELECT "game_list".* FROM "game_history"
+      LEFT JOIN "game_list" ON "game_history"."gameId" = "game_list"."id"
+    WHERE "game_history"."userId" = $1
+    ORDER BY "game_history"."id";
   `);
   const sqlValues = [
     req.user.id,
@@ -63,7 +64,7 @@ router.get("/history", ensureAuthenticated, (req: any, res: Response) => {
 
 router.post("/", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    INSERT INTO "games_list" ("userId", "name", "code", "dm")
+    INSERT INTO "game_list" ("userId", "name", "code", "dm")
     VALUES ($1, $2, $3, $4);
   `);
   const sqlValues = [
@@ -83,13 +84,12 @@ router.post("/", ensureAuthenticated, (req: any, res: Response) => {
 
 router.post("/history", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    INSERT INTO "game_history" ("userId", "name", "code")
-    VALUES ($1, $2, $3);
+    INSERT INTO "game_history" ("userId", "gameId")
+    VALUES ($1, $2);
   `);
   const sqlValues = [
     req.user.id,
-    req.body.name,
-    req.body.code
+    req.body.gameId
   ];
   pool.query(sqlText, sqlValues)
     .then(() => res.sendStatus(201))
@@ -102,7 +102,7 @@ router.post("/history", ensureAuthenticated, (req: any, res: Response) => {
 
 router.put("/:id", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    UPDATE "games_list"
+    UPDATE "game_list"
     SET "mapId" = $1
     WHERE "id" = $2;
   `);
@@ -121,7 +121,7 @@ router.put("/:id", ensureAuthenticated, (req: any, res: Response) => {
 
 router.delete("/:id", ensureAuthenticated, (req: Request, res: Response) => {
   const sqlText = (`
-    DELETE FROM "games_list"
+    DELETE FROM "game_list"
     WHERE "id" = $1;
   `);
   const sqlValues = [

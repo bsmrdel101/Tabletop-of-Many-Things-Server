@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.get("/", ensureAuthenticated, accountInfo);
 
-router.post("/authenticate", (req: Request, res: Response, next: NextFunction) => {
+router.post("/login", (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate("local", (err: string, user: any, info: any) => {
     if (err) {
       return res.status(500).json({ message: err });

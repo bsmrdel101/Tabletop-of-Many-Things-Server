@@ -22,7 +22,6 @@ export function attachMiddlewares(app: Application) {
   }));
   
   const pgSession = PgSession(session);
-
   app.use(session({
     store: new pgSession({
       pool,

@@ -5,7 +5,7 @@ CREATE TABLE "users" (
     "newUser" BOOLEAN DEFAULT true
 );
 
-CREATE TABLE "5e_game_list" (
+CREATE TABLE "game_list" (
     "id" SERIAL PRIMARY KEY,
     "userId" INTEGER REFERENCES "users",
     "mapId" INTEGER DEFAULT 1,
@@ -18,7 +18,7 @@ CREATE TABLE "5e_game_list" (
 CREATE TABLE "5e_maps" (
     "id" SERIAL PRIMARY KEY,
     "gameId" INTEGER,
-    "filepath" TEXT DEFAULT 'maps',
+    "filepath" TEXT NOT NULL DEFAULT 'maps',
     "name" TEXT,
     "image" TEXT,
     "cellSize" INTEGER DEFAULT 50,
@@ -35,14 +35,14 @@ CREATE TABLE "5e_maps" (
 CREATE TABLE "assets" (
     "id" SERIAL PRIMARY KEY,
     "userId" INTEGER REFERENCES "users",
-    "gameId" INTEGER REFERENCES "5e_game_list",
-    "filepath" TEXT DEFAULT 'assets',
+    "gameId" INTEGER REFERENCES "game_list",
+    "filepath" TEXT NOT NULL DEFAULT 'assets',
     "image" TEXT
 );
 
 CREATE TABLE "map_tokens" (
     "id" SERIAL PRIMARY KEY,
-    "gameId" INTEGER REFERENCES "5e_game_list",
+    "gameId" INTEGER REFERENCES "game_list",
     "mapId" INTEGER REFERENCES "5e_maps",
     "assetId" INTEGER REFERENCES "assets",
     "x" INTEGER DEFAULT 0,
@@ -51,15 +51,15 @@ CREATE TABLE "map_tokens" (
     "creature" TEXT
 );
 
-CREATE TABLE "5e_game_history" (
+CREATE TABLE "game_history" (
     "id" SERIAL PRIMARY KEY,
     "userId" INTEGER REFERENCES "users",
-    "gameId" INTEGER REFERENCES "5e_game_list"
+    "gameId" INTEGER REFERENCES "game_list"
 );
 
-CREATE TABLE "spells" (
+CREATE TABLE "5e_spells" (
     "id" SERIAL PRIMARY KEY,
-    "gameId" INTEGER REFERENCES "5e_game_list",
+    "gameId" INTEGER REFERENCES "game_list",
     "name" TEXT,
     "desc" TEXT,
     "level" INTEGER,
@@ -80,84 +80,261 @@ CREATE TABLE "spells" (
     "material" TEXT
 );
 
-CREATE TABLE "characters" (
+CREATE TABLE "5e_classes" (
+    "id" SERIAL PRIMARY KEY,
+    "gameId" INTEGER REFERENCES "game_list",
+    "name" TEXT,
+    "hitDice" TEXT,
+    "proficiencies" TEXT,
+    "skillChoices" TEXT DEFAULT '[]',
+    "saves" TEXT DEFAULT '[]',
+    "startingItems" TEXT DEFAULT '[]',
+    "startingItemChoices" TEXT DEFAULT '[]',
+    "levels" TEXT DEFAULT '[]',
+    "multiClassing" TEXT
+);
+
+CREATE TABLE "5e_subclasses" (
+    "id" SERIAL PRIMARY KEY,
+    "classId" INTEGER REFERENCES "5e_classes",
+    "name" TEXT,
+    "subclassFlavor" TEXT,
+    "desc" TEXT,
+    "levels" TEXT DEFAULT '[]',
+    "spells" TEXT DEFAULT '[]'
+);
+
+CREATE TABLE "5e_races" (
+    "id" SERIAL PRIMARY KEY,
+    "gameId" INTEGER REFERENCES "game_list",
+    "name" TEXT,
+    "desc" TEXT,
+    "abilityBonuses" TEXT NOT NULL DEFAULT '[]',
+    "age" TEXT,
+    "size" TEXT,
+    "sizeDesc" TEXT,
+    "alignment" TEXT,
+    "startingProficencies" NOT NULL DEFAULT '[]',
+    "languages" NOT NULL DEFAULT '[]',
+    "languageDesc" TEXT,
+    "speeds" NOT NULL DEFAULT '[]',
+    "traits" NOT NULL DEFAULT '[]'
+);
+
+CREATE TABLE "5e_subraces" (
+    "id" SERIAL PRIMARY KEY,
+    "raceId" INTEGER REFERENCES "5e_races",
+    "name" TEXT,
+    "desc" TEXT,
+    "abilityBonuses" TEXT NOT NULL DEFAULT '[]',
+    "startingProficencies" NOT NULL DEFAULT '[]',
+    "languages" NOT NULL DEFAULT '[]',
+    "languageDesc" TEXT,
+    "traits" NOT NULL DEFAULT '[]'
+);
+
+CREATE TABLE "5e_characters" (
     "id" SERIAL PRIMARY KEY,
     "userId" INTEGER REFERENCES "users",
-    "name" VARCHAR (80) NOT NULL,
-    "class" VARCHAR (80) NOT NULL,
-    "race" VARCHAR (80) NOT NULL,
-    "background" VARCHAR (80) NOT NULL,
-    "alignment" VARCHAR (80),
-    "level" INTEGER NOT NULL,
-    "ac" INTEGER NOT NULL,
-    "max_health" INTEGER NOT NULL,
-    "current_health" INTEGER NOT NULL,
-    "temp_health" INTEGER DEFAULT 0,
-    "prof_bonus" INTEGER NOT NULL,
-    "initiative" INTEGER,
-    "inspiration" BOOLEAN DEFAULT false,
-    "hit_dice" INTEGER,
-    "str" INTEGER NOT NULL DEFAULT 0,
-    "dex" INTEGER NOT NULL DEFAULT 0,
-    "con" INTEGER NOT NULL DEFAULT 0,
-    "int" INTEGER NOT NULL DEFAULT 0,
-    "wis" INTEGER NOT NULL DEFAULT 0,
-    "char" INTEGER NOT NULL DEFAULT 0,
-    "image" TEXT,
-    "walk_speed" INTEGER,
-    "swim_speed" INTEGER,
-    "burrow_speed" INTEGER,
-    "fly_speed" INTEGER,
-    "climb_speed" INTEGER
+    "assetId" INTEGER REFERENCES "assets",
+    "raceId" INTEGER REFERENCES "5e_races",
+    "backgroundId" INTEGER REFERENCES "5e_backgrounds",
+    "name" TEXT NOT NULL DEFAULT 'Unnamed Character',
+    "alignment" TEXT,
+    "level" INTEGER NOT NULL DEFAULT 1,
+    "xp" INTEGER NOT NULL DEFAULT 0,
+    "ac" INTEGER NOT NULL DEFAULT 10,
+    "maxHp" INTEGER NOT NULL DEFAULT 0,
+    "maxHpMod" INTEGER NOT NULL DEFAULT 0,
+    "currentHp" INTEGER NOT NULL DEFAULT 0,
+    "tempHp" INTEGER NOT NULL DEFAULT 0,
+    "insp" BOOLEAN NOT NULL DEFAULT FALSE,
+    "currentHitDice" TEXT NOT NULL DEFAULT '[]',
+    "speeds" TEXT NOT NULL DEFAULT '[]',
+    "senses" TEXT NOT NULL DEFAULT '[]',
+    "resistances" TEXT NOT NULL DEFAULT '[]',
+    "vulnerabilities" TEXT NOT NULL DEFAULT '[]',
+    "condImmunities" TEXT NOT NULL DEFAULT '[]',
+    "dmgImmunities" TEXT NOT NULL DEFAULT '[]',
+    "languages" TEXT NOT NULL DEFAULT '[]',
+    "currency" TEXT NOT NULL DEFAULT '[]',
+    "spellcasting" TEXT,
+    "targets" TEXT NOT NULL DEFAULT '[]'
 );
 
-CREATE TABLE "creatures" (
-    "id" SERIAL PRIMARY KEY,
-    "userId" INTEGER REFERENCES "users" ON DELETE CASCADE,
-    "gameId" INTEGER REFERENCES "5e_game_list" ON DELETE CASCADE,
-    "token" INTEGER REFERENCES "assets" ON DELETE CASCADE,
-    "name" VARCHAR (80),
-    "size" VARCHAR (80),
-    "type" VARCHAR (80),
-    "alignment" VARCHAR (80),
-    "ac" INTEGER,
-    "health" INTEGER,
-    "hitDice" VARCHAR (80),
-    "abilityScores" TEXT,
-    "cr" INTEGER,
-    "xp" INTEGER,
-    "speeds" TEXT,
-    "vulnerabilities" TEXT,
-    "resistances" TEXT,
-    "immunities" TEXT,
-    "senses" TEXT,
-    "languages" TEXT,
-    "abilities" TEXT,
-    "actions" TEXT,
-    "legendaryActions" TEXT,
-    "proficiencies" TEXT,
-    "spellcasting" TEXT
-);
+-- CREATE TABLE "5e_effects" (
+--     "id" SERIAL PRIMARY KEY,
+--     "name" TEXT
+-- );
 
-CREATE TABLE "skills" (
-    "id" SERIAL PRIMARY KEY,
-    "characterId" INTEGER REFERENCES "characters" ON DELETE CASCADE,
-    "name" VARCHAR (80),
-    "type" VARCHAR (80),
-    "bonus_mod" INTEGER DEFAULT 0,
-    "proficient" BOOLEAN DEFAULT false
-);
-
-CREATE TABLE "senses" (
-    "id" SERIAL PRIMARY KEY,
-    "characterId" INTEGER REFERENCES "characters" ON DELETE CASCADE,
-    "sense_name" VARCHAR (80),
-    "sense_value" INTEGER
-);
-
-CREATE TABLE "languages" (
+CREATE TABLE "5e_conditions" (
     "id" SERIAL PRIMARY KEY,
     "name" TEXT
+);
+
+CREATE TABLE "5e_character_classes" (
+    "id" SERIAL PRIMARY KEY,
+    "characterId" INTEGER REFERENCES "5e_characters",
+    "classId" INTEGER REFERENCES "5e_classs"
+);
+
+CREATE TABLE "5e_creatures" (
+    "id" SERIAL PRIMARY KEY,
+    "userId" INTEGER REFERENCES "users" ON DELETE CASCADE,
+    "gameId" INTEGER REFERENCES "game_list" ON DELETE CASCADE,
+    "assetId" INTEGER REFERENCES "assets" ON DELETE CASCADE,
+    "filepath" TEXT NOT NULL DEFAULT 'creatures',
+    "name" TEXT,
+    "size" TEXT,
+    "type" TEXT,
+    "alignment" TEXT,
+    "cr" INTEGER NOT NULL DEFAULT 0,
+    "xp" INTEGER NOT NULL DEFAULT 0,
+    "ac" INTEGER NOT NULL DEFAULT 10,
+    "maxHp" INTEGER NOT NULL DEFAULT 0,
+    "maxHpMod" INTEGER NOT NULL DEFAULT 0,
+    "currentHp" INTEGER NOT NULL DEFAULT 0,
+    "tempHp" INTEGER NOT NULL DEFAULT 0,
+    "insp" BOOLEAN NOT NULL DEFAULT FALSE,
+    "currentHitDice" TEXT NOT NULL DEFAULT '[]',
+    "speeds" TEXT NOT NULL DEFAULT '[]',
+    "senses" TEXT NOT NULL DEFAULT '[]',
+    "resistances" TEXT NOT NULL DEFAULT '[]',
+    "vulnerabilities" TEXT NOT NULL DEFAULT '[]',
+    "condImmunities" TEXT NOT NULL DEFAULT '[]',
+    "dmgImmunities" TEXT NOT NULL DEFAULT '[]',
+    "languages" TEXT NOT NULL DEFAULT '[]',
+    "currency" TEXT NOT NULL DEFAULT '[]',
+    "spellcasting" TEXT,
+    "currency" TEXT NOT NULL DEFAULT '[]'
+);
+
+CREATE TABLE "5e_creature_abilities" (
+    "id" SERIAL PRIMARY KEY,
+    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "name" TEXT,
+    "desc" TEXT,
+);
+
+CREATE TABLE "5e_creature_actions" (
+    "id" SERIAL PRIMARY KEY,
+    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "name" TEXT,
+    "desc" TEXT,
+);
+
+CREATE TABLE "5e_creature_leg_actions" (
+    "id" SERIAL PRIMARY KEY,
+    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "name" TEXT,
+    "desc" TEXT,
+);
+
+CREATE TABLE "5e_creature_lair_actions" (
+    "id" SERIAL PRIMARY KEY,
+    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "name" TEXT,
+    "desc" TEXT,
+);
+
+CREATE TABLE "5e_creature_reactions" (
+    "id" SERIAL PRIMARY KEY,
+    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "name" TEXT,
+    "desc" TEXT,
+);
+
+CREATE TABLE "5e_items" (
+    "id" SERIAL PRIMARY KEY,
+    "gameId" INTEGER REFERENCES "game_list",
+    "name" TEXT NOT NULL DEFAULT 'New Item',
+    "filepath" TEXT NOT NULL DEFAULT 'items',
+    "desc" TEXT,
+    "type" TEXT,
+    "cost" TEXT,
+    "lbs" INTEGER NOT NULL DEFAULT 0,
+    "rarity" TEXT,
+    "armorType" TEXT,
+    "weaponType" TEXT,
+    "dmg" TEXT,
+    "range" TEXT,
+    "properties" TEXT NOT NULL DEFAULT '[]'
+);
+
+CREATE TABLE "5e_inventory" (
+    "id" SERIAL PRIMARY KEY,
+    "characterId" INTEGER REFERENCES "5e_characters",
+    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "name" TEXT NOT NULL DEFAULT 'New Item',
+    "filepath" TEXT NOT NULL DEFAULT 'items',
+    "desc" TEXT,
+    "type" TEXT,
+    "cost" TEXT,
+    "lbs" INTEGER NOT NULL DEFAULT 0,
+    "rarity" TEXT,
+    "armorType" TEXT,
+    "weaponType" TEXT,
+    "dmg" TEXT,
+    "range" TEXT,
+    "properties" TEXT NOT NULL DEFAULT '[]',
+    "qty" INTEGER NOT NULL DEFAULT 0,
+    "attuned" BOOLEAN NOT NULL DEFAULT FALSE,
+    "equipped" BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+-- CREATE TABLE "5e_creature_effects" (
+--     "id" SERIAL PRIMARY KEY,
+--     "characterId" INTEGER REFERENCES "5e_characters",
+--     "creatureId" INTEGER REFERENCES "5e_creatures",
+--     "effectId" INTEGER REFERENCES "5e_effects"
+-- );
+
+CREATE TABLE "5e_creature_spells" (
+    "id" SERIAL PRIMARY KEY,
+    "characterId" INTEGER REFERENCES "5e_characters",
+    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "spellId" INTEGER REFERENCES "5e_spells"
+);
+
+CREATE TABLE "5e_skills" (
+    "id" SERIAL PRIMARY KEY,
+    "characterId" INTEGER REFERENCES "5e_characters",
+    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "name" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "prof" BOOLEAN DEFAULT FALSE NOT NULL,
+    "mod" INTEGER DEFAULT 0 NOT NULL
+);
+
+CREATE TABLE "5e_creature_conditions" (
+    "id" SERIAL PRIMARY KEY,
+    "characterId" INTEGER REFERENCES "5e_characters",
+    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "conditionId" INTEGER REFERENCES "5e_conditions"
+);
+
+CREATE TABLE "5e_ability_scores" (
+    "id" SERIAL PRIMARY KEY,
+    "characterId" INTEGER REFERENCES "5e_characters",
+    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "name" TEXT,
+    "mod" INTEGER NOT NULL DEFAULT 0,
+    "prof" BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE "5e_variables" (
+    "id" SERIAL PRIMARY KEY,
+    "characterId" INTEGER REFERENCES "5e_characters",
+    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "name" TEXT,
+    "value" TEXT,
+    "type" TEXT
+);
+
+CREATE TABLE "5e_companions" (
+    "id" SERIAL PRIMARY KEY,
+    "characterId" INTEGER REFERENCES "5e_characters",
+    "creatureId" INTEGER REFERENCES "5e_creatures"
 );
 
 
@@ -171,36 +348,9 @@ VALUES
     ('test', '$2a$10$3rvmJEyHfGUQhLpuhKBmneeK76Zvw2d7wO0KYob8YKAF.DirAKcga')
 ;
 
-INSERT INTO "5e_game_list" ("userId", "name", "code", "dm", "ruleset")
+INSERT INTO "game_list" ("userId", "name", "code", "dm", "ruleset")
 VALUES
     (1, 'Dev Campaign', 'pA6ZO0', 1, '5e')
-;
-
-INSERT INTO "characters" ("userId", "name", "class", "race", "background", "alignment", "level", "ac", "max_health", "current_health", "temp_health", "prof_bonus", "initiative", "inspiration", "hit_dice", "str", "dex", "con", "int", "wis", "char", "image", "walk_speed", "swim_speed", "burrow_speed", "fly_speed", "climb_speed")
-VALUES
-    (1, 'Steve', 'Breadbarian', 'Goliath', 'Noble', 'CE', 1, 12, 20, 20, 0, 2, 2, FALSE, 12, 4, 10, 11, 20, 18, 12, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBCAMLHmC6fIfZJYcqEsOAcRue_MI924YtdHo1sCosPh5-BxpeHMW0Se_ewoQBwtNODCQ&usqp=CAU', 30, 0, 0, 0, 0)
-;
-
-INSERT INTO "skills" ("characterId", "name", "type", "bonus_mod", "proficient")
-VALUES 
-  (1,'Athletics', 'str', 0, FALSE),
-  (1,'Acrobatics', 'dex', 0, FALSE),
-  (1,'Slight of Hand', 'dex', 0, FALSE),
-  (1,'Stealth', 'dex', 0, FALSE),
-  (1,'Arcana', 'int', 0, FALSE),
-  (1,'History', 'int', 0, FALSE),
-  (1,'Invesigation', 'int', 0, FALSE),
-  (1,'Nature', 'wis', 0, FALSE),
-  (1,'Religion', 'wis', 0, FALSE),
-  (1,'Animal Handling', 'wis', 0, FALSE),
-  (1,'Insight', 'wis', 0, FALSE),
-  (1,'Medicine', 'wis', 0, FALSE),
-  (1,'Perception', 'wis', 0, FALSE),
-  (1,'Survival', 'wis', 0, FALSE),
-  (1,'Deception', 'char', 0, FALSE),
-  (1,'Intimidation', 'char', 0, FALSE),
-  (1,'Performance', 'char', 0, FALSE),
-  (1,'Persuasion', 'char', 0, FALSE)
 ;
 
 INSERT INTO "assets" ("userId", "gameId", "image")
@@ -211,18 +361,35 @@ VALUES
     (1, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlW_xekRD291YBhLdPKYifDnF2HV74Csz0KQ&usqp=CAU')
 ;
 
+INSERT INTO "5e_characters" ("userId", "name", "class", "race", "background", "alignment", "level", "ac", "max_health", "current_health", "temp_health", "prof_bonus", "initiative", "inspiration", "hit_dice", "str", "dex", "con", "int", "wis", "char", "image", "walk_speed", "swim_speed", "burrow_speed", "fly_speed", "climb_speed")
+VALUES
+    (1, 'Steve', 'Breadbarian', 'Goliath', 'Noble', 'CE', 1, 12, 20, 20, 0, 2, 2, FALSE, 12, 4, 10, 11, 20, 18, 12, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBCAMLHmC6fIfZJYcqEsOAcRue_MI924YtdHo1sCosPh5-BxpeHMW0Se_ewoQBwtNODCQ&usqp=CAU', 30, 0, 0, 0, 0)
+;
+
+INSERT INTO "5e_skills" ("characterId", "name", "type", "mod", "prof")
+VALUES 
+  (1, 'Athletics', 'str', 0, TRUE),
+  (1, 'Acrobatics', 'dex', 0, FALSE),
+  (1, 'Slight of Hand', 'dex', 0, FALSE),
+  (1, 'Stealth', 'dex', 0, FALSE),
+  (1, 'Arcana', 'int', 0, FALSE),
+  (1, 'History', 'int', 0, FALSE),
+  (1, 'Invesigation', 'int', 0, FALSE),
+  (1, 'Nature', 'wis', 0, FALSE),
+  (1, 'Religion', 'wis', 0, FALSE),
+  (1, 'Animal Handling', 'wis', 0, FALSE),
+  (1, 'Insight', 'wis', 0, FALSE),
+  (1, 'Medicine', 'wis', 0, FALSE),
+  (1, 'Perception', 'wis', 0, FALSE),
+  (1, 'Survival', 'wis', 0, FALSE),
+  (1, 'Deception', 'char', 0, FALSE),
+  (1, 'Intimidation', 'char', 0, TRUE),
+  (1, 'Performance', 'char', 0, FALSE),
+  (1, 'Persuasion', 'char', 0, FALSE)
+;
+
 INSERT INTO "5e_maps" ("gameId", "name", "image")
 VALUES
     (1, 'Default Map', '/images/maps/default-map.webp'),
     (1, 'Forest', 'https://i.etsystatic.com/18388031/r/il/8b7a49/2796267092/il_fullxfull.2796267092_aezx.jpg')
-;
-
--- INSERT INTO "spells" ("gameId", "name", "desc", "level", "range", "components", "ritual", "duration", "concentration", "castingTime", "higherLevel", "areaOfEffect", "damage", "dc", "healAtSlotLevel", "school", "classes", "subclasses", "material")
--- VALUES
---     (NULL),
--- ;
-
-INSERT INTO "languages" ("name")
-VALUES
-    ('Auran')
 ;

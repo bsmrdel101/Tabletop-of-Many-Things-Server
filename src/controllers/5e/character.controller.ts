@@ -1,16 +1,16 @@
 import express, { Request, Response } from "express";
-import { ensureAuthenticated } from "../middlewares/index";
-import pool from "../modules/pool";
+import { ensureAuthenticated } from "../../middlewares/index";
+import pool from "../../modules/pool";
 
 
 const router = express.Router();
 /**
- * @base_path /api/character
+ * @base_path /api/5e/characters
 */
 
 router.get("/", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    SELECT * FROM "characters"
+    SELECT * FROM "5e_characters"
     WHERE "user_id" = $1
     ORDER BY "id";
   `);
@@ -28,7 +28,7 @@ router.get("/", ensureAuthenticated, (req: any, res: Response) => {
 
 router.get("/:id", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    SELECT * FROM "characters"
+    SELECT * FROM "5e_characters"
     WHERE "id" = $1
     ORDER BY "id";
   `);
@@ -46,7 +46,7 @@ router.get("/:id", ensureAuthenticated, (req: any, res: Response) => {
 
 router.post("/", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
-    INSERT INTO "characters" ("user_id")
+    INSERT INTO "5e_characters" ("user_id")
     VALUES ($1);
   `);
   const sqlValues = [
@@ -63,7 +63,7 @@ router.post("/", ensureAuthenticated, (req: any, res: Response) => {
 
 router.patch("/health", ensureAuthenticated, (req: Request, res: Response) => {
   const sqlText = (`
-    UPDATE "characters"
+    UPDATE "5e_characters"
     SET "maxHp" = $2, "currentHp" = $3, "tempHp" = $4
     WHERE "id" = $1;
   `);
@@ -84,7 +84,7 @@ router.patch("/health", ensureAuthenticated, (req: Request, res: Response) => {
 
 router.delete("/:id", ensureAuthenticated, (req: Request, res: Response) => {
   const sqlText = (`
-    DELETE FROM "characters"
+    DELETE FROM "5e_characters"
     WHERE "id" = $1;
   `);
   const sqlValues = [

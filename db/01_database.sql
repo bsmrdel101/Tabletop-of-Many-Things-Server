@@ -114,11 +114,11 @@ CREATE TABLE "5e_races" (
     "size" TEXT,
     "sizeDesc" TEXT,
     "alignment" TEXT,
-    "startingProficencies" NOT NULL DEFAULT '[]',
-    "languages" NOT NULL DEFAULT '[]',
+    "startingProficiencies" TEXT NOT NULL DEFAULT '[]',
+    "languages" TEXT NOT NULL DEFAULT '[]',
     "languageDesc" TEXT,
-    "speeds" NOT NULL DEFAULT '[]',
-    "traits" NOT NULL DEFAULT '[]'
+    "speeds" TEXT NOT NULL DEFAULT '[]',
+    "traits" TEXT NOT NULL DEFAULT '[]'
 );
 
 CREATE TABLE "5e_subraces" (
@@ -127,10 +127,24 @@ CREATE TABLE "5e_subraces" (
     "name" TEXT,
     "desc" TEXT,
     "abilityBonuses" TEXT NOT NULL DEFAULT '[]',
-    "startingProficencies" NOT NULL DEFAULT '[]',
-    "languages" NOT NULL DEFAULT '[]',
+    "startingProficiencies" TEXT NOT NULL DEFAULT '[]',
+    "languages" TEXT NOT NULL DEFAULT '[]',
     "languageDesc" TEXT,
-    "traits" NOT NULL DEFAULT '[]'
+    "traits" TEXT NOT NULL DEFAULT '[]'
+);
+
+CREATE TABLE "5e_backgrounds" (
+    "id" SERIAL PRIMARY KEY,
+    "name" TEXT,
+    "desc" TEXT,
+    "proficiencies" TEXT NOT NULL DEFAULT '[]',
+    "languages" TEXT NOT NULL DEFAULT '[]',
+    "equipment" TEXT NOT NULL DEFAULT '[]',
+    "features" TEXT NOT NULL DEFAULT '[]',
+    "personalityTraits" TEXT NOT NULL DEFAULT '[]',
+    "ideals" TEXT NOT NULL DEFAULT '[]',
+    "bonds" TEXT NOT NULL DEFAULT '[]',
+    "flaws" TEXT NOT NULL DEFAULT '[]'
 );
 
 CREATE TABLE "5e_characters" (
@@ -143,8 +157,9 @@ CREATE TABLE "5e_characters" (
     "alignment" TEXT,
     "level" INTEGER NOT NULL DEFAULT 1,
     "xp" INTEGER NOT NULL DEFAULT 0,
-    "ac" INTEGER NOT NULL DEFAULT 10,
-    "maxHp" INTEGER NOT NULL DEFAULT 0,
+    "acOverride" INTEGER NOT NULL DEFAULT 0,
+    "acMod" INTEGER NOT NULL DEFAULT 0,
+    "maxHpOverride" INTEGER NOT NULL DEFAULT 0,
     "maxHpMod" INTEGER NOT NULL DEFAULT 0,
     "currentHp" INTEGER NOT NULL DEFAULT 0,
     "tempHp" INTEGER NOT NULL DEFAULT 0,
@@ -159,6 +174,7 @@ CREATE TABLE "5e_characters" (
     "languages" TEXT NOT NULL DEFAULT '[]',
     "currency" TEXT NOT NULL DEFAULT '[]',
     "spellcasting" TEXT,
+    "ruleset" TEXT,
     "targets" TEXT NOT NULL DEFAULT '[]'
 );
 
@@ -175,7 +191,7 @@ CREATE TABLE "5e_conditions" (
 CREATE TABLE "5e_character_classes" (
     "id" SERIAL PRIMARY KEY,
     "characterId" INTEGER REFERENCES "5e_characters",
-    "classId" INTEGER REFERENCES "5e_classs"
+    "classId" INTEGER REFERENCES "5e_classes"
 );
 
 CREATE TABLE "5e_creatures" (
@@ -361,10 +377,10 @@ VALUES
     (1, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlW_xekRD291YBhLdPKYifDnF2HV74Csz0KQ&usqp=CAU')
 ;
 
-INSERT INTO "5e_characters" ("userId", "name", "class", "race", "background", "alignment", "level", "ac", "max_health", "current_health", "temp_health", "prof_bonus", "initiative", "inspiration", "hit_dice", "str", "dex", "con", "int", "wis", "char", "image", "walk_speed", "swim_speed", "burrow_speed", "fly_speed", "climb_speed")
-VALUES
-    (1, 'Steve', 'Breadbarian', 'Goliath', 'Noble', 'CE', 1, 12, 20, 20, 0, 2, 2, FALSE, 12, 4, 10, 11, 20, 18, 12, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBCAMLHmC6fIfZJYcqEsOAcRue_MI924YtdHo1sCosPh5-BxpeHMW0Se_ewoQBwtNODCQ&usqp=CAU', 30, 0, 0, 0, 0)
-;
+-- INSERT INTO "5e_characters" ("userId", "name", "class", "race", "background", "alignment", "level", "ac", "max_health", "current_health", "temp_health", "prof_bonus", "initiative", "inspiration", "hit_dice", "str", "dex", "con", "int", "wis", "char", "image", "walk_speed", "swim_speed", "burrow_speed", "fly_speed", "climb_speed")
+-- VALUES
+--     (1, 'Steve', 'Breadbarian', 'Goliath', 'Noble', 'CE', 1, 12, 20, 20, 0, 2, 2, FALSE, 12, 4, 10, 11, 20, 18, 12, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBCAMLHmC6fIfZJYcqEsOAcRue_MI924YtdHo1sCosPh5-BxpeHMW0Se_ewoQBwtNODCQ&usqp=CAU', 30, 0, 0, 0, 0)
+-- ;
 
 INSERT INTO "5e_skills" ("characterId", "name", "type", "mod", "prof")
 VALUES 

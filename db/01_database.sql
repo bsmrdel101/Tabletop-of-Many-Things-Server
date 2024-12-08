@@ -82,6 +82,7 @@ CREATE TABLE "5e_spells" (
 
 CREATE TABLE "5e_classes" (
     "id" SERIAL PRIMARY KEY,
+    "userId" INTEGER REFERENCES "users",
     "gameId" INTEGER REFERENCES "game_list",
     "name" TEXT,
     "hitDice" TEXT,
@@ -106,6 +107,7 @@ CREATE TABLE "5e_subclasses" (
 
 CREATE TABLE "5e_races" (
     "id" SERIAL PRIMARY KEY,
+    "userId" INTEGER REFERENCES "users",
     "gameId" INTEGER REFERENCES "game_list",
     "name" TEXT,
     "desc" TEXT,
@@ -135,6 +137,7 @@ CREATE TABLE "5e_subraces" (
 
 CREATE TABLE "5e_backgrounds" (
     "id" SERIAL PRIMARY KEY,
+    "userId" INTEGER REFERENCES "users",
     "name" TEXT,
     "desc" TEXT,
     "proficiencies" TEXT NOT NULL DEFAULT '[]',
@@ -155,7 +158,6 @@ CREATE TABLE "5e_characters" (
     "backgroundId" INTEGER REFERENCES "5e_backgrounds",
     "name" TEXT NOT NULL DEFAULT 'Unnamed Character',
     "alignment" TEXT,
-    "level" INTEGER NOT NULL DEFAULT 1,
     "xp" INTEGER NOT NULL DEFAULT 0,
     "acOverride" INTEGER NOT NULL DEFAULT 0,
     "acMod" INTEGER NOT NULL DEFAULT 0,
@@ -191,7 +193,8 @@ CREATE TABLE "5e_conditions" (
 CREATE TABLE "5e_character_classes" (
     "id" SERIAL PRIMARY KEY,
     "characterId" INTEGER REFERENCES "5e_characters",
-    "classId" INTEGER REFERENCES "5e_classes"
+    "classId" INTEGER REFERENCES "5e_classes",
+    "lvl" INTEGER DEFAULT 1
 );
 
 CREATE TABLE "5e_creatures" (

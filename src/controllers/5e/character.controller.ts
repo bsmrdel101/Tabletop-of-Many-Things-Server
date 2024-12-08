@@ -12,6 +12,8 @@ router.get("/", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
     SELECT
       "5e_characters".*,
+      "assets"."image" AS "img",
+      CAST(COALESCE(SUM("5e_character_classes"."lvl"), 1) AS INTEGER) AS "lvl",
       COALESCE(
         json_agg(
           to_jsonb("5e_classes")
@@ -21,8 +23,19 @@ router.get("/", ensureAuthenticated, (req: any, res: Response) => {
       to_jsonb("5e_subclasses") AS "subclass",
       to_jsonb("5e_races") AS "race",
       to_jsonb("5e_subraces") AS "subrace",
-      to_jsonb("5e_backgrounds") AS "background"
+      to_jsonb("5e_backgrounds") AS "background",
+      "currentHitDice"::json,
+      "5e_characters"."speeds"::json,
+      "senses"::json,
+      "resistances"::json,
+      "vulnerabilities"::json,
+      "condImmunities"::json,
+      "dmgImmunities"::json,
+      "5e_characters"."languages"::json,
+      "currency"::json,
+      "targets"::json
     FROM "5e_characters"
+      LEFT JOIN "assets" ON "5e_characters"."assetId" = "assets"."id"
       LEFT JOIN "5e_character_classes" ON "5e_characters"."id" = "5e_character_classes"."characterId"
       LEFT JOIN "5e_classes" ON "5e_character_classes"."classId" = "5e_classes"."id"
       LEFT JOIN "5e_subclasses" ON "5e_classes"."id" = "5e_subclasses"."classId"
@@ -30,7 +43,7 @@ router.get("/", ensureAuthenticated, (req: any, res: Response) => {
       LEFT JOIN "5e_subraces" ON "5e_races"."id" = "5e_subraces"."raceId"
       LEFT JOIN "5e_backgrounds" ON "5e_characters"."backgroundId" = "5e_backgrounds"."id"
     WHERE "userId" = $1
-    GROUP BY "5e_characters"."id", "5e_subclasses"."id", "5e_races"."id", "5e_subraces"."id", "5e_backgrounds"."id"
+    GROUP BY "5e_characters"."id", "5e_subclasses"."id", "5e_races"."id", "5e_subraces"."id", "5e_backgrounds"."id", "assets"."id"
     ORDER BY "id";
   `);
   const sqlValues = [
@@ -49,6 +62,8 @@ router.get("/:id", ensureAuthenticated, (req: any, res: Response) => {
   const sqlText = (`
     SELECT
       "5e_characters".*,
+      "assets"."image" AS "img",
+      CAST(COALESCE(SUM("5e_character_classes"."lvl"), 1) AS INTEGER) AS "lvl",
       COALESCE(
         json_agg(
           to_jsonb("5e_classes")
@@ -58,8 +73,19 @@ router.get("/:id", ensureAuthenticated, (req: any, res: Response) => {
       to_jsonb("5e_subclasses") AS "subclass",
       to_jsonb("5e_races") AS "race",
       to_jsonb("5e_subraces") AS "subrace",
-      to_jsonb("5e_backgrounds") AS "background"
+      to_jsonb("5e_backgrounds") AS "background",
+      "currentHitDice"::json,
+      "5e_characters"."speeds"::json,
+      "senses"::json,
+      "resistances"::json,
+      "vulnerabilities"::json,
+      "condImmunities"::json,
+      "dmgImmunities"::json,
+      "5e_characters"."languages"::json,
+      "currency"::json,
+      "targets"::json
     FROM "5e_characters"
+      LEFT JOIN "assets" ON "5e_characters"."assetId" = "assets"."id"
       LEFT JOIN "5e_character_classes" ON "5e_characters"."id" = "5e_character_classes"."characterId"
       LEFT JOIN "5e_classes" ON "5e_character_classes"."classId" = "5e_classes"."id"
       LEFT JOIN "5e_subclasses" ON "5e_classes"."id" = "5e_subclasses"."classId"
@@ -67,7 +93,7 @@ router.get("/:id", ensureAuthenticated, (req: any, res: Response) => {
       LEFT JOIN "5e_subraces" ON "5e_races"."id" = "5e_subraces"."raceId"
       LEFT JOIN "5e_backgrounds" ON "5e_characters"."backgroundId" = "5e_backgrounds"."id"
     WHERE "5e_characters"."id" = $1
-    GROUP BY "5e_characters"."id", "5e_subclasses"."id", "5e_races"."id", "5e_subraces"."id", "5e_backgrounds"."id"
+    GROUP BY "5e_characters"."id", "5e_subclasses"."id", "5e_races"."id", "5e_subraces"."id", "5e_backgrounds"."id", "assets"."id"
     ORDER BY "id";
   `);
   const sqlValues = [

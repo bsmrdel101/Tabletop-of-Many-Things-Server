@@ -7,17 +7,30 @@ CREATE TABLE "users" (
 
 CREATE TABLE "game_list" (
     "id" SERIAL PRIMARY KEY,
-    "userId" INTEGER REFERENCES "users",
-    "mapId" INTEGER DEFAULT 1,
     "dm" INTEGER REFERENCES "users",
     "name" TEXT NOT NULL,
     "code" TEXT NOT NULL,
+    "password" TEXT,
     "ruleset" TEXT NOT NULL
+);
+
+CREATE TABLE "games" (
+    "id" SERIAL PRIMARY KEY,
+    "userId" INTEGER REFERENCES "users",
+    "gameId" INTEGER REFERENCES "game_list",
+    "mapId" INTEGER REFERENCES "5e_maps"
+);
+
+CREATE TABLE "game_history" (
+    "id" SERIAL PRIMARY KEY,
+    "userId" INTEGER REFERENCES "users",
+    "gameId" INTEGER REFERENCES "game_list"
 );
 
 CREATE TABLE "5e_maps" (
     "id" SERIAL PRIMARY KEY,
-    "gameId" INTEGER,
+    "gameId" INTEGER REFERENCES "game_list",
+    "sharedTo" TEXT DEFAULT '[]',
     "filepath" TEXT NOT NULL DEFAULT 'maps',
     "name" TEXT,
     "image" TEXT,
@@ -29,7 +42,7 @@ CREATE TABLE "5e_maps" (
     "boardState" TEXT DEFAULT '[]',
     "los" TEXT DEFAULT '[]',
     "lighting" TEXT DEFAULT '[]',
-    "drawing" TEXT DEFAULT '[]'
+    "drawings" TEXT DEFAULT '[]'
 );
 
 CREATE TABLE "assets" (
@@ -37,24 +50,18 @@ CREATE TABLE "assets" (
     "userId" INTEGER REFERENCES "users",
     "gameId" INTEGER REFERENCES "game_list",
     "filepath" TEXT NOT NULL DEFAULT 'assets',
-    "image" TEXT
+    "img" TEXT
 );
 
-CREATE TABLE "map_tokens" (
+CREATE TABLE "5e_map_tokens" (
     "id" SERIAL PRIMARY KEY,
     "gameId" INTEGER REFERENCES "game_list",
     "mapId" INTEGER REFERENCES "5e_maps",
     "assetId" INTEGER REFERENCES "assets",
+    "creatureId" INTEGER REFERENCES "5e_creatures",
     "x" INTEGER DEFAULT 0,
     "y" INTEGER DEFAULT 0,
-    "size" INTEGER,
-    "creature" TEXT
-);
-
-CREATE TABLE "game_history" (
-    "id" SERIAL PRIMARY KEY,
-    "userId" INTEGER REFERENCES "users",
-    "gameId" INTEGER REFERENCES "game_list"
+    "size" INTEGER
 );
 
 CREATE TABLE "5e_spells" (
@@ -62,22 +69,22 @@ CREATE TABLE "5e_spells" (
     "gameId" INTEGER REFERENCES "game_list",
     "name" TEXT,
     "desc" TEXT,
-    "level" INTEGER,
+    "lvl" INTEGER,
     "range" TEXT,
     "components" TEXT,
     "ritual" BOOLEAN,
     "duration" TEXT,
     "concentration" BOOLEAN,
     "castingTime" TEXT,
-    "higherLevel" TEXT,
+    "higherLvl" TEXT,
     "aoe" TEXT,
     "damage" TEXT,
     "dc" TEXT,
-    "healAtSlotLevel" TEXT,
+    "healAtSlotLvl" TEXT,
     "school" TEXT,
     "classes" TEXT,
     "subclasses" TEXT,
-    "material" TEXT
+    "materials" TEXT
 );
 
 CREATE TABLE "5e_classes" (
@@ -155,6 +162,7 @@ CREATE TABLE "5e_characters" (
     "userId" INTEGER REFERENCES "users",
     "assetId" INTEGER REFERENCES "assets",
     "raceId" INTEGER REFERENCES "5e_races",
+    "subraceId" INTEGER REFERENCES "5e_subraces",
     "backgroundId" INTEGER REFERENCES "5e_backgrounds",
     "name" TEXT NOT NULL DEFAULT 'Unnamed Character',
     "alignment" TEXT,

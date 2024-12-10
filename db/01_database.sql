@@ -171,7 +171,7 @@ CREATE TABLE "5e_characters" (
     "acMod" INTEGER NOT NULL DEFAULT 0,
     "maxHpOverride" INTEGER NOT NULL DEFAULT 0,
     "maxHpMod" INTEGER NOT NULL DEFAULT 0,
-    "currentHp" INTEGER NOT NULL DEFAULT 0,
+    "hp" INTEGER NOT NULL DEFAULT 0,
     "tempHp" INTEGER NOT NULL DEFAULT 0,
     "insp" BOOLEAN NOT NULL DEFAULT FALSE,
     "currentHitDice" TEXT NOT NULL DEFAULT '[]',
@@ -202,12 +202,12 @@ CREATE TABLE "5e_character_classes" (
     "id" SERIAL PRIMARY KEY,
     "characterId" INTEGER REFERENCES "5e_characters",
     "classId" INTEGER REFERENCES "5e_classes",
+    "subclassId" INTEGER REFERENCES "5e_subclasses",
     "lvl" INTEGER DEFAULT 1
 );
 
 CREATE TABLE "5e_creatures" (
     "id" SERIAL PRIMARY KEY,
-    "userId" INTEGER REFERENCES "users" ON DELETE CASCADE,
     "gameId" INTEGER REFERENCES "game_list" ON DELETE CASCADE,
     "assetId" INTEGER REFERENCES "assets" ON DELETE CASCADE,
     "filepath" TEXT NOT NULL DEFAULT 'creatures',
@@ -219,8 +219,7 @@ CREATE TABLE "5e_creatures" (
     "xp" INTEGER NOT NULL DEFAULT 0,
     "ac" INTEGER NOT NULL DEFAULT 10,
     "maxHp" INTEGER NOT NULL DEFAULT 0,
-    "maxHpMod" INTEGER NOT NULL DEFAULT 0,
-    "currentHp" INTEGER NOT NULL DEFAULT 0,
+    "hp" INTEGER NOT NULL DEFAULT 0,
     "tempHp" INTEGER NOT NULL DEFAULT 0,
     "insp" BOOLEAN NOT NULL DEFAULT FALSE,
     "currentHitDice" TEXT NOT NULL DEFAULT '[]',
@@ -232,8 +231,7 @@ CREATE TABLE "5e_creatures" (
     "dmgImmunities" TEXT NOT NULL DEFAULT '[]',
     "languages" TEXT NOT NULL DEFAULT '[]',
     "currency" TEXT NOT NULL DEFAULT '[]',
-    "spellcasting" TEXT,
-    "currency" TEXT NOT NULL DEFAULT '[]'
+    "spellcasting" TEXT
 );
 
 CREATE TABLE "5e_creature_abilities" (
@@ -345,7 +343,9 @@ CREATE TABLE "5e_ability_scores" (
     "characterId" INTEGER REFERENCES "5e_characters",
     "creatureId" INTEGER REFERENCES "5e_creatures",
     "name" TEXT,
-    "mod" INTEGER NOT NULL DEFAULT 0,
+    "baseValue" INTEGER NOT NULL DEFAULT 10,
+    "scoreOverride" INTEGER NOT NULL DEFAULT 0,
+    "scoreMod" INTEGER NOT NULL DEFAULT 0,
     "prof" BOOLEAN NOT NULL DEFAULT FALSE
 );
 

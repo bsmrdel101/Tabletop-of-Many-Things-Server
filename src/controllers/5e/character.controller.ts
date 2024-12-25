@@ -16,7 +16,7 @@ router.get("/", ensureAuthenticated, (req: any, res: Response) => {
       CAST(COALESCE(SUM("5e_character_classes"."lvl"), 1) AS INTEGER) AS "lvl",
       COALESCE(
         json_agg(
-          to_jsonb("5e_classes")
+          to_jsonb("5e_classes") || jsonb_build_object('lvl', "5e_character_classes"."lvl")
         ) FILTER (WHERE "5e_classes"."id" IS NOT NULL), 
         '[]'
       ) AS "classes",
@@ -42,7 +42,7 @@ router.get("/", ensureAuthenticated, (req: any, res: Response) => {
       LEFT JOIN "5e_races" ON "5e_characters"."raceId" = "5e_races"."id"
       LEFT JOIN "5e_subraces" ON "5e_races"."id" = "5e_subraces"."raceId"
       LEFT JOIN "5e_backgrounds" ON "5e_characters"."backgroundId" = "5e_backgrounds"."id"
-    WHERE "userId" = $1
+    WHERE "5e_characters"."userId" = $1
     GROUP BY "5e_characters"."id", "5e_subclasses"."id", "5e_races"."id", "5e_subraces"."id", "5e_backgrounds"."id", "assets"."id"
     ORDER BY "id";
   `);
@@ -63,10 +63,16 @@ router.get("/:id", ensureAuthenticated, (req: any, res: Response) => {
     SELECT
       "5e_characters".*,
       "assets"."image" AS "img",
+      CASE 
+        WHEN "5e_characters"."maxHpOverride" > 0 THEN
+          "5e_characters"."maxHpOverride"
+        ELSE
+          ("5e_characters"."maxHp" + "5e_characters"."maxHpMod")
+      END AS "maxHp",
       CAST(COALESCE(SUM("5e_character_classes"."lvl"), 1) AS INTEGER) AS "lvl",
       COALESCE(
         json_agg(
-          to_jsonb("5e_classes")
+          to_jsonb("5e_classes") || jsonb_build_object('lvl', "5e_character_classes"."lvl")
         ) FILTER (WHERE "5e_classes"."id" IS NOT NULL), 
         '[]'
       ) AS "classes",
@@ -129,14 +135,55 @@ router.post("/", ensureAuthenticated, (req: any, res: Response) => {
 router.patch("/health", ensureAuthenticated, (req: Request, res: Response) => {
   const sqlText = (`
     UPDATE "5e_characters"
-    SET "maxHp" = $2, "currentHp" = $3, "tempHp" = $4
+    SET "maxHp" = $2, "hp" = $3, "tempHp" = $4
     WHERE "id" = $1;
   `);
   const sqlValues = [
     req.body.id,
     req.body.maxHp,
-    req.body.currentHp,
-    req.body.tempHp,
+    req.body.hp,
+    req.body.tempHp
+  ];
+  pool.query(sqlText, sqlValues)
+    .then(() => res.sendStatus(200))
+    .catch((dberror) => {
+      console.log('Oops you did a goof: ', dberror);
+      res.sendStatus(500);
+    }
+  );
+});
+
+router.patch("/restore-max-hp", ensureAuthenticated, (req: Request, res: Response) => {
+  const sqlText = (`
+    UPDATE "5e_characters"
+    SET "maxHp" = "prevMaxHp"
+    WHERE "id" = $1;
+  `);
+  const sqlValues = [
+    req.body.id
+  ];
+  pool.query(sqlText, sqlValues)
+    .then(() => res.sendStatus(200))
+    .catch((dberror) => {
+      console.log('Oops you did a goof: ', dberror);
+      res.sendStatus(500);
+    }
+  );
+});
+
+router.put("/", ensureAuthenticated, (req: Request, res: Response) => {
+  const sqlText = (`
+    UPDATE "5e_characters"
+    SET "maxHpMod" = $2, "maxHpOverride" = $3, "hp" = $4, "acMod" = $5, "acOverride" = $6
+    WHERE "id" = $1;
+  `);
+  const sqlValues = [
+    req.body.id,
+    req.body.maxHpMod,
+    req.body.maxHpOverride,
+    req.body.hp,
+    req.body.acMod,
+    req.body.acOverride
   ];
   pool.query(sqlText, sqlValues)
     .then(() => res.sendStatus(200))

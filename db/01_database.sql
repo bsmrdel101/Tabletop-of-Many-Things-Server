@@ -7,7 +7,7 @@ CREATE TABLE "users" (
 
 CREATE TABLE "game_list" (
     "id" SERIAL PRIMARY KEY,
-    "dm" INTEGER REFERENCES "users",
+    "dm" INTEGER REFERENCES "users" ON DELETE CASCADE,
     "name" TEXT NOT NULL,
     "code" TEXT NOT NULL,
     "password" TEXT,
@@ -16,20 +16,20 @@ CREATE TABLE "game_list" (
 
 CREATE TABLE "games" (
     "id" SERIAL PRIMARY KEY,
-    "userId" INTEGER REFERENCES "users",
-    "gameId" INTEGER REFERENCES "game_list",
-    "mapId" INTEGER REFERENCES "5e_maps"
+    "userId" INTEGER REFERENCES "users" ON DELETE CASCADE,
+    "gameId" INTEGER REFERENCES "game_list" ON DELETE CASCADE,
+    "mapId" INTEGER REFERENCES "5e_maps" ON DELETE CASCADE
 );
 
 CREATE TABLE "game_history" (
     "id" SERIAL PRIMARY KEY,
-    "userId" INTEGER REFERENCES "users",
-    "gameId" INTEGER REFERENCES "game_list"
+    "userId" INTEGER REFERENCES "users" ON DELETE CASCADE,
+    "gameId" INTEGER REFERENCES "game_list" ON DELETE CASCADE
 );
 
 CREATE TABLE "5e_maps" (
     "id" SERIAL PRIMARY KEY,
-    "gameId" INTEGER REFERENCES "game_list",
+    "gameId" INTEGER REFERENCES "game_list" ON DELETE CASCADE,
     "sharedTo" TEXT DEFAULT '[]',
     "filepath" TEXT NOT NULL DEFAULT 'maps',
     "name" TEXT,
@@ -47,18 +47,18 @@ CREATE TABLE "5e_maps" (
 
 CREATE TABLE "assets" (
     "id" SERIAL PRIMARY KEY,
-    "userId" INTEGER REFERENCES "users",
-    "gameId" INTEGER REFERENCES "game_list",
+    "userId" INTEGER REFERENCES "users" ON DELETE CASCADE,
+    "gameId" INTEGER REFERENCES "game_list" ON DELETE CASCADE,
     "filepath" TEXT NOT NULL DEFAULT 'assets',
     "img" TEXT
 );
 
 CREATE TABLE "5e_map_tokens" (
     "id" SERIAL PRIMARY KEY,
-    "gameId" INTEGER REFERENCES "game_list",
-    "mapId" INTEGER REFERENCES "5e_maps",
-    "assetId" INTEGER REFERENCES "assets",
-    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "gameId" INTEGER REFERENCES "game_list" ON DELETE CASCADE,
+    "mapId" INTEGER REFERENCES "5e_maps" ON DELETE CASCADE,
+    "assetId" INTEGER REFERENCES "assets" ON DELETE CASCADE,
+    "creatureId" INTEGER REFERENCES "5e_creatures" ON DELETE CASCADE,
     "x" INTEGER DEFAULT 0,
     "y" INTEGER DEFAULT 0,
     "size" INTEGER
@@ -66,7 +66,7 @@ CREATE TABLE "5e_map_tokens" (
 
 CREATE TABLE "5e_spells" (
     "id" SERIAL PRIMARY KEY,
-    "gameId" INTEGER REFERENCES "game_list",
+    "gameId" INTEGER REFERENCES "game_list" ON DELETE CASCADE,
     "name" TEXT,
     "desc" TEXT,
     "lvl" INTEGER,
@@ -89,8 +89,8 @@ CREATE TABLE "5e_spells" (
 
 CREATE TABLE "5e_classes" (
     "id" SERIAL PRIMARY KEY,
-    "userId" INTEGER REFERENCES "users",
-    "gameId" INTEGER REFERENCES "game_list",
+    "userId" INTEGER REFERENCES "users" ON DELETE CASCADE,
+    "gameId" INTEGER REFERENCES "game_list" ON DELETE CASCADE,
     "name" TEXT,
     "hitDice" TEXT,
     "proficiencies" TEXT,
@@ -104,7 +104,7 @@ CREATE TABLE "5e_classes" (
 
 CREATE TABLE "5e_subclasses" (
     "id" SERIAL PRIMARY KEY,
-    "classId" INTEGER REFERENCES "5e_classes",
+    "classId" INTEGER REFERENCES "5e_classes" ON DELETE CASCADE,
     "name" TEXT,
     "subclassFlavor" TEXT,
     "desc" TEXT,
@@ -114,8 +114,8 @@ CREATE TABLE "5e_subclasses" (
 
 CREATE TABLE "5e_races" (
     "id" SERIAL PRIMARY KEY,
-    "userId" INTEGER REFERENCES "users",
-    "gameId" INTEGER REFERENCES "game_list",
+    "userId" INTEGER REFERENCES "users" ON DELETE CASCADE,
+    "gameId" INTEGER REFERENCES "game_list" ON DELETE CASCADE,
     "name" TEXT,
     "desc" TEXT,
     "abilityBonuses" TEXT NOT NULL DEFAULT '[]',
@@ -132,7 +132,7 @@ CREATE TABLE "5e_races" (
 
 CREATE TABLE "5e_subraces" (
     "id" SERIAL PRIMARY KEY,
-    "raceId" INTEGER REFERENCES "5e_races",
+    "raceId" INTEGER REFERENCES "5e_races" ON DELETE CASCADE,
     "name" TEXT,
     "desc" TEXT,
     "abilityBonuses" TEXT NOT NULL DEFAULT '[]',
@@ -144,7 +144,7 @@ CREATE TABLE "5e_subraces" (
 
 CREATE TABLE "5e_backgrounds" (
     "id" SERIAL PRIMARY KEY,
-    "userId" INTEGER REFERENCES "users",
+    "userId" INTEGER REFERENCES "users" ON DELETE CASCADE,
     "name" TEXT,
     "desc" TEXT,
     "proficiencies" TEXT NOT NULL DEFAULT '[]',
@@ -159,11 +159,11 @@ CREATE TABLE "5e_backgrounds" (
 
 CREATE TABLE "5e_characters" (
     "id" SERIAL PRIMARY KEY,
-    "userId" INTEGER REFERENCES "users",
-    "assetId" INTEGER REFERENCES "assets",
-    "raceId" INTEGER REFERENCES "5e_races",
-    "subraceId" INTEGER REFERENCES "5e_subraces",
-    "backgroundId" INTEGER REFERENCES "5e_backgrounds",
+    "userId" INTEGER REFERENCES "users" ON DELETE CASCADE,
+    "assetId" INTEGER REFERENCES "assets" ON DELETE CASCADE,
+    "raceId" INTEGER REFERENCES "5e_races" ON DELETE CASCADE,
+    "subraceId" INTEGER REFERENCES "5e_subraces" ON DELETE CASCADE,
+    "backgroundId" INTEGER REFERENCES "5e_backgrounds" ON DELETE CASCADE,
     "name" TEXT NOT NULL DEFAULT 'Unnamed Character',
     "alignment" TEXT,
     "xp" INTEGER NOT NULL DEFAULT 0,
@@ -202,9 +202,9 @@ CREATE TABLE "5e_conditions" (
 
 CREATE TABLE "5e_character_classes" (
     "id" SERIAL PRIMARY KEY,
-    "characterId" INTEGER REFERENCES "5e_characters",
-    "classId" INTEGER REFERENCES "5e_classes",
-    "subclassId" INTEGER REFERENCES "5e_subclasses",
+    "characterId" INTEGER REFERENCES "5e_characters" ON DELETE CASCADE,
+    "classId" INTEGER REFERENCES "5e_classes" ON DELETE CASCADE,
+    "subclassId" INTEGER REFERENCES "5e_subclasses" ON DELETE CASCADE,
     "lvl" INTEGER DEFAULT 1
 );
 
@@ -238,42 +238,42 @@ CREATE TABLE "5e_creatures" (
 
 CREATE TABLE "5e_creature_abilities" (
     "id" SERIAL PRIMARY KEY,
-    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "creatureId" INTEGER REFERENCES "5e_creatures" ON DELETE CASCADE,
     "name" TEXT,
     "desc" TEXT,
 );
 
 CREATE TABLE "5e_creature_actions" (
     "id" SERIAL PRIMARY KEY,
-    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "creatureId" INTEGER REFERENCES "5e_creatures" ON DELETE CASCADE,
     "name" TEXT,
     "desc" TEXT,
 );
 
 CREATE TABLE "5e_creature_leg_actions" (
     "id" SERIAL PRIMARY KEY,
-    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "creatureId" INTEGER REFERENCES "5e_creatures" ON DELETE CASCADE,
     "name" TEXT,
     "desc" TEXT,
 );
 
 CREATE TABLE "5e_creature_lair_actions" (
     "id" SERIAL PRIMARY KEY,
-    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "creatureId" INTEGER REFERENCES "5e_creatures" ON DELETE CASCADE,
     "name" TEXT,
     "desc" TEXT,
 );
 
 CREATE TABLE "5e_creature_reactions" (
     "id" SERIAL PRIMARY KEY,
-    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "creatureId" INTEGER REFERENCES "5e_creatures" ON DELETE CASCADE,
     "name" TEXT,
     "desc" TEXT,
 );
 
 CREATE TABLE "5e_items" (
     "id" SERIAL PRIMARY KEY,
-    "gameId" INTEGER REFERENCES "game_list",
+    "gameId" INTEGER REFERENCES "game_list" ON DELETE CASCADE,
     "name" TEXT NOT NULL DEFAULT 'New Item',
     "filepath" TEXT NOT NULL DEFAULT 'items',
     "desc" TEXT,
@@ -290,8 +290,8 @@ CREATE TABLE "5e_items" (
 
 CREATE TABLE "5e_inventory" (
     "id" SERIAL PRIMARY KEY,
-    "characterId" INTEGER REFERENCES "5e_characters",
-    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "characterId" INTEGER REFERENCES "5e_characters" ON DELETE CASCADE,
+    "creatureId" INTEGER REFERENCES "5e_creatures" ON DELETE CASCADE,
     "name" TEXT NOT NULL DEFAULT 'New Item',
     "filepath" TEXT NOT NULL DEFAULT 'items',
     "desc" TEXT,
@@ -311,22 +311,22 @@ CREATE TABLE "5e_inventory" (
 
 -- CREATE TABLE "5e_creature_effects" (
 --     "id" SERIAL PRIMARY KEY,
---     "characterId" INTEGER REFERENCES "5e_characters",
---     "creatureId" INTEGER REFERENCES "5e_creatures",
---     "effectId" INTEGER REFERENCES "5e_effects"
+--     "characterId" INTEGER REFERENCES "5e_characters" ON DELETE CASCADE,
+--     "creatureId" INTEGER REFERENCES "5e_creatures" ON DELETE CASCADE,
+--     "effectId" INTEGER REFERENCES "5e_effects" ON DELETE CASCADE
 -- );
 
 CREATE TABLE "5e_creature_spells" (
     "id" SERIAL PRIMARY KEY,
-    "characterId" INTEGER REFERENCES "5e_characters",
-    "creatureId" INTEGER REFERENCES "5e_creatures",
-    "spellId" INTEGER REFERENCES "5e_spells"
+    "characterId" INTEGER REFERENCES "5e_characters" ON DELETE CASCADE,
+    "creatureId" INTEGER REFERENCES "5e_creatures" ON DELETE CASCADE,
+    "spellId" INTEGER REFERENCES "5e_spells" ON DELETE CASCADE
 );
 
 CREATE TABLE "5e_skills" (
     "id" SERIAL PRIMARY KEY,
-    "characterId" INTEGER REFERENCES "5e_characters",
-    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "characterId" INTEGER REFERENCES "5e_characters" ON DELETE CASCADE,
+    "creatureId" INTEGER REFERENCES "5e_creatures" ON DELETE CASCADE,
     "name" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "prof" BOOLEAN DEFAULT FALSE NOT NULL,
@@ -335,15 +335,15 @@ CREATE TABLE "5e_skills" (
 
 CREATE TABLE "5e_creature_conditions" (
     "id" SERIAL PRIMARY KEY,
-    "characterId" INTEGER REFERENCES "5e_characters",
-    "creatureId" INTEGER REFERENCES "5e_creatures",
-    "conditionId" INTEGER REFERENCES "5e_conditions"
+    "characterId" INTEGER REFERENCES "5e_characters" ON DELETE CASCADE,
+    "creatureId" INTEGER REFERENCES "5e_creatures" ON DELETE CASCADE,
+    "conditionId" INTEGER REFERENCES "5e_conditions" ON DELETE CASCADE
 );
 
 CREATE TABLE "5e_ability_scores" (
     "id" SERIAL PRIMARY KEY,
-    "characterId" INTEGER REFERENCES "5e_characters",
-    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "characterId" INTEGER REFERENCES "5e_characters" ON DELETE CASCADE,
+    "creatureId" INTEGER REFERENCES "5e_creatures" ON DELETE CASCADE,
     "name" TEXT,
     "baseValue" INTEGER NOT NULL DEFAULT 10,
     "scoreOverride" INTEGER NOT NULL DEFAULT 0,
@@ -353,8 +353,8 @@ CREATE TABLE "5e_ability_scores" (
 
 CREATE TABLE "5e_variables" (
     "id" SERIAL PRIMARY KEY,
-    "characterId" INTEGER REFERENCES "5e_characters",
-    "creatureId" INTEGER REFERENCES "5e_creatures",
+    "characterId" INTEGER REFERENCES "5e_characters" ON DELETE CASCADE,
+    "creatureId" INTEGER REFERENCES "5e_creatures" ON DELETE CASCADE,
     "name" TEXT,
     "value" TEXT,
     "type" TEXT
@@ -362,8 +362,8 @@ CREATE TABLE "5e_variables" (
 
 CREATE TABLE "5e_companions" (
     "id" SERIAL PRIMARY KEY,
-    "characterId" INTEGER REFERENCES "5e_characters",
-    "creatureId" INTEGER REFERENCES "5e_creatures"
+    "characterId" INTEGER REFERENCES "5e_characters" ON DELETE CASCADE,
+    "creatureId" INTEGER REFERENCES "5e_creatures" ON DELETE CASCADE
 );
 
 

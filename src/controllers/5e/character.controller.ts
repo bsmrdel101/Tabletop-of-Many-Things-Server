@@ -69,13 +69,27 @@ router.get("/:id", ensureAuthenticated, (req: any, res: Response) => {
         ELSE
           ("5e_characters"."maxHp" + "5e_characters"."maxHpMod")
       END AS "maxHp",
-      CAST(COALESCE(SUM("5e_character_classes"."lvl"), 1) AS INTEGER) AS "lvl",
+      CAST(COALESCE(SUM(DISTINCT "5e_character_classes"."lvl"), 1) AS INTEGER) AS "lvl",
       COALESCE(
         json_agg(
-          to_jsonb("5e_classes") || jsonb_build_object('lvl', "5e_character_classes"."lvl")
+          DISTINCT to_jsonb("5e_classes") || jsonb_build_object('lvl', "5e_character_classes"."lvl")
         ) FILTER (WHERE "5e_classes"."id" IS NOT NULL), 
-        '[]'
+        '[]'::json
       ) AS "classes",
+      COALESCE(
+        json_agg(
+          json_build_object(
+            'id', "5e_ability_scores"."id",
+            'name', "5e_ability_scores"."name",
+            'value', ("5e_ability_scores"."baseValue" + "5e_ability_scores"."scoreMod"),
+            'mod', FLOOR((("5e_ability_scores"."baseValue" + "5e_ability_scores"."scoreMod") - 10) / 2),
+            'scoreOverride', "5e_ability_scores"."scoreOverride",
+            'scoreMod', "5e_ability_scores"."scoreMod",
+            'prof', "5e_ability_scores"."prof"
+          )
+        ) FILTER (WHERE "5e_ability_scores"."id" IS NOT NULL),
+        '[]'::json
+      ) AS "abilityScores",
       to_jsonb("5e_subclasses") AS "subclass",
       to_jsonb("5e_races") AS "race",
       to_jsonb("5e_subraces") AS "subrace",
@@ -98,6 +112,7 @@ router.get("/:id", ensureAuthenticated, (req: any, res: Response) => {
       LEFT JOIN "5e_races" ON "5e_characters"."raceId" = "5e_races"."id"
       LEFT JOIN "5e_subraces" ON "5e_races"."id" = "5e_subraces"."raceId"
       LEFT JOIN "5e_backgrounds" ON "5e_characters"."backgroundId" = "5e_backgrounds"."id"
+      LEFT JOIN "5e_ability_scores" ON "5e_characters"."id" = "5e_ability_scores"."characterId"
     WHERE "5e_characters"."id" = $1
     GROUP BY "5e_characters"."id", "5e_subclasses"."id", "5e_races"."id", "5e_subraces"."id", "5e_backgrounds"."id", "assets"."id"
     ORDER BY "id";

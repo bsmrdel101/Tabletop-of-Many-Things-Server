@@ -395,6 +395,16 @@ VALUES
 --     (1, 'Steve', 'Breadbarian', 'Goliath', 'Noble', 'CE', 1, 12, 20, 20, 0, 2, 2, FALSE, 12, 4, 10, 11, 20, 18, 12, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBCAMLHmC6fIfZJYcqEsOAcRue_MI924YtdHo1sCosPh5-BxpeHMW0Se_ewoQBwtNODCQ&usqp=CAU', 30, 0, 0, 0, 0)
 -- ;
 
+INSERT INTO "5e_ability_scores" ("characterId", "creatureId", "name", "baseValue", "scoreOverride", "scoreMod", "prof")
+VALUES
+    (1, NULL, 'Str', 16, 0, 0, TRUE),
+    (1, NULL, 'Dex', 14, 0, 0, FALSE),
+    (1, NULL, 'Con', 16, 0, 0, TRUE),
+    (1, NULL, 'Int', 8, 0, 0, FALSE),
+    (1, NULL, 'Wis', 10, 0, 0, FALSE),
+    (1, NULL, 'Char', 12, 0, 0, FALSE)
+;
+
 INSERT INTO "5e_skills" ("characterId", "name", "type", "mod", "prof")
 VALUES 
   (1, 'Athletics', 'str', 0, TRUE),

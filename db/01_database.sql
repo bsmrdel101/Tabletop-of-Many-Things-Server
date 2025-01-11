@@ -397,12 +397,12 @@ VALUES
 
 INSERT INTO "5e_ability_scores" ("characterId", "creatureId", "name", "baseValue", "scoreOverride", "scoreMod", "prof")
 VALUES
-    (1, NULL, 'Str', 16, 0, 0, TRUE),
-    (1, NULL, 'Dex', 14, 0, 0, FALSE),
-    (1, NULL, 'Con', 16, 0, 0, TRUE),
-    (1, NULL, 'Int', 8, 0, 0, FALSE),
-    (1, NULL, 'Wis', 10, 0, 0, FALSE),
-    (1, NULL, 'Char', 12, 0, 0, FALSE)
+    (1, NULL, 'str', 16, 0, 0, TRUE),
+    (1, NULL, 'dex', 14, 0, 0, FALSE),
+    (1, NULL, 'con', 16, 0, 0, TRUE),
+    (1, NULL, 'int', 8, 0, 0, FALSE),
+    (1, NULL, 'wis', 10, 0, 0, FALSE),
+    (1, NULL, 'char', 12, 0, 0, FALSE)
 ;
 
 INSERT INTO "5e_skills" ("characterId", "name", "type", "mod", "prof")

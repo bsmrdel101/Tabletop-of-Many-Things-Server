@@ -87,6 +87,7 @@ router.get("/:id", ensureAuthenticated, (req: any, res: Response) => {
             'scoreMod', "5e_ability_scores"."scoreMod",
             'prof', "5e_ability_scores"."prof"
           )
+          ORDER BY "5e_ability_scores"."id"
         ) FILTER (WHERE "5e_ability_scores"."id" IS NOT NULL),
         '[]'::json
       ) AS "abilityScores",
@@ -176,6 +177,25 @@ router.patch("/restore-max-hp", ensureAuthenticated, (req: Request, res: Respons
   `);
   const sqlValues = [
     req.body.id
+  ];
+  pool.query(sqlText, sqlValues)
+    .then(() => res.sendStatus(200))
+    .catch((dberror) => {
+      console.log('Oops you did a goof: ', dberror);
+      res.sendStatus(500);
+    }
+  );
+});
+
+router.patch("/insp", ensureAuthenticated, (req: Request, res: Response) => {
+  const sqlText = (`
+    UPDATE "5e_characters"
+    SET "insp" = $2
+    WHERE "id" = $1;
+  `);
+  const sqlValues = [
+    req.body.id,
+    req.body.insp
   ];
   pool.query(sqlText, sqlValues)
     .then(() => res.sendStatus(200))

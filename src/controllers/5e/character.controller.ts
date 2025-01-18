@@ -23,17 +23,7 @@ router.get("/", ensureAuthenticated, (req: any, res: Response) => {
       to_jsonb("5e_subclasses") AS "subclass",
       to_jsonb("5e_races") AS "race",
       to_jsonb("5e_subraces") AS "subrace",
-      to_jsonb("5e_backgrounds") AS "background",
-      "currentHitDice"::json,
-      "5e_characters"."speeds"::json,
-      "senses"::json,
-      "resistances"::json,
-      "vulnerabilities"::json,
-      "condImmunities"::json,
-      "dmgImmunities"::json,
-      "5e_characters"."languages"::json,
-      "currency"::json,
-      "targets"::json
+      to_jsonb("5e_backgrounds") AS "background"
     FROM "5e_characters"
       LEFT JOIN "assets" ON "5e_characters"."assetId" = "assets"."id"
       LEFT JOIN "5e_character_classes" ON "5e_characters"."id" = "5e_character_classes"."characterId"

@@ -15,7 +15,12 @@ router.get("/", ensureAuthenticated, (req: any, res: Response) => {
       to_jsonb("5e_subraces") AS "subrace"
     FROM "5e_races"
       LEFT JOIN "5e_subraces" ON "5e_races"."id" = "5e_subraces"."raceId"
-    WHERE "5e_races"."userId" = $1;
+      LEFT JOIN "game_list" ON "game_list"."userId" = $1
+      LEFT JOIN "game_history" ON "game_history"."userId" = $1
+    WHERE
+      "5e_races"."userId" = $1 OR
+      "5e_races"."gameId" = "game_list"."id" OR
+      "5e_races"."gameId" = "game_history"."id";
   `);
   const sqlValues = [
     req.user.id

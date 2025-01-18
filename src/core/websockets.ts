@@ -19,10 +19,10 @@ export default function socketEvents(io: Server, socket: Socket) {
     // Check if the dm already exists
     if (clients && clients.size === 1 || !dmExists) {
       socket.data.clientType = 'dm';
-      fn('dm');
+      fn && fn('dm');
     } else {
       socket.data.clientType = 'player';
-      fn('player');
+      fn && fn('player');
     }
   });
 
@@ -68,7 +68,7 @@ export default function socketEvents(io: Server, socket: Socket) {
     io.to(room).emit('SEND_MESSAGE', msg);
   });
 
-  socket.on('UPDATE_PLAYER', (character) => {
-    io.emit('UPDATE_PLAYER', character);
+  socket.on('UPDATE_PLAYER', (character, room) => {
+    io.to(room).emit('UPDATE_PLAYER', character);
   });
 }
